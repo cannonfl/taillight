@@ -3,15 +3,10 @@
 
 # testing
 /coverage
+.nyc_output/
 
-# production
-/build
+# logs
+*.log*
 
 # misc
 .DS_Store
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-*.log*
