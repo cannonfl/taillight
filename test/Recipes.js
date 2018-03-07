@@ -1,7 +1,6 @@
 'use strict'
-
 const chai = require('chai')
-const Recipes = require('../src/Recipes')
+const recipes = require('../src/recipes')
 const should = chai.should()
 
 const goodRecipes = [{
@@ -16,18 +15,18 @@ const goodRecipes = [{
   'ingredients': 'one, two',
   'thumbnail': 'thumbnail'
 }]
-const badUrlRecipe = [{
+const badRecipeUrl = {
   'title': 'Bad Recipe One',
   'href': 'bad.url.com',
   'ingredients': 'one, two, three, four',
   'thumbnail': 'thumbnail'
-},
-{
+}
+const goodRecipeUrl = {
   'title': 'Good Recipe Two',
   'href': 'good.url.com',
   'ingredients': 'one, two',
   'thumbnail': 'thumbnail'
-}]
+}
 
 const logMock = {
   info: () => {},
@@ -53,52 +52,23 @@ function linkCheckMock (url, callback) {
   }
 }
 
-let recipes = new Recipes(logMock, requestMock, linkCheckMock)
+recipes.initUnitTests({logMock, requestMock, linkCheckMock})
 
 describe('Recipes', () => {
-  describe('getRecipes', () => {
-    it('it should return success', async () => {
+  describe('isValidUrl', () => {
+    it('it should return true on valid URL', async () => {
       try {
-        let res = await recipes.getRecipes([])
-        res.should.equal('success')
-      } catch (err) {
-        should.not.exist(err)
-      }
-    })
-  })
-
-  describe('getValidRecipes', () => {
-    it('it should return two recipes', async () => {
-      try {
-        let res = await recipes.getValidRecipes(goodRecipes)
-        res.length.should.equal(2)
+        let res = await recipes.isValidUrl(goodRecipeUrl)
+        res.should.equal(true)
       } catch (err) {
         should.not.exist(err)
       }
     })
 
-    it('it should return one recipes', async () => {
+    it('it should return false on invalid URL', async () => {
       try {
-        let res = await recipes.getValidRecipes(badUrlRecipe)
-        res.length.should.equal(1)
-      } catch (err) {
-        should.not.exist(err)
-      }
-    })
-
-    it('it should return no recipes', async () => {
-      try {
-        let res = await recipes.getValidRecipes([])
-        res.length.should.equal(0)
-      } catch (err) {
-        should.not.exist(err)
-      }
-    })
-
-    it('it should return empty array', async () => {
-      try {
-        let res = await recipes.getValidRecipes()
-        res.length.should.equal(0)
+        let res = await recipes.isValidUrl(badRecipeUrl)
+        res.should.equal(false)
       } catch (err) {
         should.not.exist(err)
       }
@@ -119,6 +89,36 @@ describe('Recipes', () => {
       try {
         let res = recipes.hasMostIngredients(null)
         res.numIngredients.should.equal(0)
+      } catch (err) {
+        should.not.exist(err)
+      }
+    })
+  })
+
+  describe('outputRecipe', () => {
+    it('it should return no ingredients', async () => {
+      try {
+        let res = recipes.outputRecipe({recipe: null, numIngredients: 0})
+        res.should.equal(0)
+      } catch (err) {
+        should.not.exist(err)
+      }
+    })
+
+    it('it should return four ingredients', async () => {
+      try {
+        let res = recipes.outputRecipe({recipe: goodRecipeUrl, numIngredients: goodRecipeUrl.ingredients.split(',').length})
+        res.should.equal(2)
+      } catch (err) {
+        should.not.exist(err)
+      }
+    })
+  })
+  describe('getRecipes', () => {
+    it('it should return four ingredients', async () => {
+      try {
+        let res = await recipes.getRecipes([])
+        res.numIngredients.should.equal(4)
       } catch (err) {
         should.not.exist(err)
       }
